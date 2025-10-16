@@ -1,0 +1,42 @@
+~/workspace$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 3 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+    modified:   .replit
+
+no changes added to commit (use "git add" and/or "git commit -a")
+~/workspace$ git add -A
+~/workspace$ git commit -m "feat: Add advanced TTS editing features and play all functionality
+- Implemented character-level pitch adjustment with popup controls
+- Added keyboard shortcuts (Shift: accent, Ctrl: pause, Alt: extend)
+- Expanded font size to 24px for better readability
+- Added 10 speaker model selection from AivisSpeech
+- Implemented selective WAV export with checkboxes
+- Added Play All button for continuous playback of all timeline items
+- Added playback speed control (1x-2x)
+- Implemented progress bar and visual highlighting for playing items
+- Added auto-scroll to keep playing line in view
+- Added batch synthesis endpoint for multiple texts
+- Improved AudioQuery manipulation at mora level"
+[master d64db00] feat: Add advanced TTS editing features and play all functionality - Implemented character-level pitch adjustment with popup controls - Added keyboard shortcuts (Shift: accent, Ctrl: pause, Alt: extend) - Expanded font size to 24px for better readability - Added 10 speaker model selection from AivisSpeech - Implemented selective WAV export with checkboxes - Added Play All button for continuous playback of all timeline items - Added playback speed control (1x-2x) - Implemented progress bar and visual highlighting for playing items - Added auto-scroll to keep playing line in view - Added batch synthesis endpoint for multiple texts - Improved AudioQuery manipulation at mora level
+ 1 file changed, 4 deletions(-)
+~/workspace$ git push origin master
+Enumerating objects: 37, done.
+Counting objects: 100% (37/37), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (23/23), done.
+Writing objects: 100% (23/23), 9.74 KiB | 9.74 MiB/s, done.
+Total 23 (delta 14), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (14/14), completed with 9 local objects.
+To https://github.com/leococonut8585/MioVo
+   e077604..d64db00  master -> master
+~/workspace$ 
+
+
+
+
+
