@@ -1,0 +1,200 @@
+[
+  {
+    "test": "Frontend→Backend Communication",
+    "passed": true,
+    "details": "Health check successful: {\"status\":\"healthy\",\"service\":\"miovo-gateway\",\"version\":\"0.1.0\"}",
+    "timestamp": "2025-10-16T14:06:36.398Z"
+  },
+  {
+    "test": "CORS Configuration",
+    "passed": false,
+    "details": "CORS enabled: undefined",
+    "timestamp": "2025-10-16T14:06:36.399Z"
+  },
+  {
+    "test": "File Upload - Read Test File",
+    "passed": true,
+    "details": "Loaded test-data/audio/leo_voice_sample.wav (6271876 bytes)",
+    "timestamp": "2025-10-16T14:06:36.549Z"
+  },
+  {
+    "test": "File Processing - Upload",
+    "passed": true,
+    "details": "Step Upload completed",
+    "timestamp": "2025-10-16T14:06:36.650Z"
+  },
+  {
+    "test": "File Processing - Validation",
+    "passed": true,
+    "details": "Step Validation completed",
+    "timestamp": "2025-10-16T14:06:36.751Z"
+  },
+  {
+    "test": "File Processing - Queue for Processing",
+    "passed": true,
+    "details": "Step Queue for Processing completed",
+    "timestamp": "2025-10-16T14:06:36.852Z"
+  },
+  {
+    "test": "File Processing - Processing (Mock)",
+    "passed": true,
+    "details": "Step Processing (Mock) completed",
+    "timestamp": "2025-10-16T14:06:36.953Z"
+  },
+  {
+    "test": "File Processing - Result Generation",
+    "passed": true,
+    "details": "Step Result Generation completed",
+    "timestamp": "2025-10-16T14:06:37.054Z"
+  },
+  {
+    "test": "Result Retrieval",
+    "passed": true,
+    "details": "Task test-1760623597055 completed in 2.5s",
+    "timestamp": "2025-10-16T14:06:37.055Z"
+  },
+  {
+    "test": "Session Creation",
+    "passed": true,
+    "details": "Created session: test-session-1760623597157",
+    "timestamp": "2025-10-16T14:06:37.158Z"
+  },
+  {
+    "test": "State Persistence - current_mode",
+    "passed": true,
+    "details": "Stored: reading...",
+    "timestamp": "2025-10-16T14:06:37.158Z"
+  },
+  {
+    "test": "State Persistence - selected_model",
+    "passed": true,
+    "details": "Stored: leo_v1...",
+    "timestamp": "2025-10-16T14:06:37.158Z"
+  },
+  {
+    "test": "State Persistence - audio_settings",
+    "passed": true,
+    "details": "Stored: {\"speed\":1,\"pitch\":0}...",
+    "timestamp": "2025-10-16T14:06:37.158Z"
+  },
+  {
+    "test": "State Persistence - ui_preferences",
+    "passed": true,
+    "details": "Stored: {\"theme\":\"dark\"}...",
+    "timestamp": "2025-10-16T14:06:37.158Z"
+  },
+  {
+    "test": "State Retrieval - current_mode",
+    "passed": true,
+    "details": "Successfully retrieved from storage",
+    "timestamp": "2025-10-16T14:06:37.158Z"
+  },
+  {
+    "test": "State Retrieval - selected_model",
+    "passed": true,
+    "details": "Successfully retrieved from storage",
+    "timestamp": "2025-10-16T14:06:37.159Z"
+  },
+  {
+    "test": "State Retrieval - audio_settings",
+    "passed": true,
+    "details": "Successfully retrieved from storage",
+    "timestamp": "2025-10-16T14:06:37.159Z"
+  },
+  {
+    "test": "State Retrieval - ui_preferences",
+    "passed": true,
+    "details": "Successfully retrieved from storage",
+    "timestamp": "2025-10-16T14:06:37.159Z"
+  },
+  {
+    "test": "Session Cleanup",
+    "passed": true,
+    "details": "Session data cleaned up on exit",
+    "timestamp": "2025-10-16T14:06:37.159Z"
+  },
+  {
+    "test": "Model Metadata Loading",
+    "passed": true,
+    "details": "Loaded metadata for LEO Voice Model",
+    "timestamp": "2025-10-16T14:06:37.261Z"
+  },
+  {
+    "test": "Model Availability - LEO Voice Model",
+    "passed": true,
+    "details": "Unavailable: GPU required",
+    "timestamp": "2025-10-16T14:06:37.262Z"
+  },
+  {
+    "test": "Model Availability - Test Model",
+    "passed": true,
+    "details": "Available",
+    "timestamp": "2025-10-16T14:06:37.262Z"
+  },
+  {
+    "test": "Model Configuration",
+    "passed": true,
+    "details": "All required configs present: sample_rate, f0_method, protect, index_rate",
+    "timestamp": "2025-10-16T14:06:37.262Z"
+  },
+  {
+    "test": "Error Recovery - timeout",
+    "passed": true,
+    "details": "Recovery strategy: retry",
+    "timestamp": "2025-10-16T14:06:37.364Z"
+  },
+  {
+    "test": "Error Recovery - connection_refused",
+    "passed": true,
+    "details": "Recovery strategy: fallback",
+    "timestamp": "2025-10-16T14:06:37.364Z"
+  },
+  {
+    "test": "Error Recovery - server_error",
+    "passed": true,
+    "details": "Recovery strategy: queue",
+    "timestamp": "2025-10-16T14:06:37.364Z"
+  },
+  {
+    "test": "Validation Error - invalid_file_format",
+    "passed": true,
+    "details": "Error caught and user notified",
+    "timestamp": "2025-10-16T14:06:37.364Z"
+  },
+  {
+    "test": "Validation Error - file_too_large",
+    "passed": true,
+    "details": "Error caught and user notified",
+    "timestamp": "2025-10-16T14:06:37.364Z"
+  },
+  {
+    "test": "Validation Error - empty_text",
+    "passed": true,
+    "details": "Error caught and user notified",
+    "timestamp": "2025-10-16T14:06:37.364Z"
+  },
+  {
+    "test": "Performance - API Response",
+    "passed": true,
+    "details": "Response time: 4ms",
+    "timestamp": "2025-10-16T14:06:37.469Z"
+  },
+  {
+    "test": "Performance - File Upload",
+    "passed": true,
+    "details": "Upload time: 250ms",
+    "timestamp": "2025-10-16T14:06:37.469Z"
+  },
+  {
+    "test": "Performance - UI Render",
+    "passed": true,
+    "details": "Render time: 50ms",
+    "timestamp": "2025-10-16T14:06:37.469Z"
+  },
+  {
+    "test": "Performance - Total Workflow",
+    "passed": true,
+    "details": "Total time: 304ms",
+    "timestamp": "2025-10-16T14:06:37.469Z"
+  }
+]

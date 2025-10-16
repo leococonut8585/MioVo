@@ -1,0 +1,38 @@
+[
+  {
+    "test": "Health Endpoint",
+    "passed": true,
+    "details": "Status: 200, Response: {'status': 'healthy', 'service': 'miovo-gateway', 'version': '0.1.0'}",
+    "timestamp": "2025-10-16T14:05:27.037411"
+  },
+  {
+    "test": "Models Endpoint (Mock)",
+    "passed": true,
+    "details": "Mock response generated: 2 models",
+    "timestamp": "2025-10-16T14:05:27.137926"
+  },
+  {
+    "test": "RVC Convert Endpoint",
+    "passed": true,
+    "details": "Task created: b2251b51-47c3-4e6c-b2a4-7a7f39f05644",
+    "timestamp": "2025-10-16T14:05:27.252681"
+  },
+  {
+    "test": "TTS Synthesize Endpoint",
+    "passed": true,
+    "details": "Expected failure in Replit: TTS service (AivisSpeech) requires local setup. See README for installation instructions.",
+    "timestamp": "2025-10-16T14:05:27.358463"
+  },
+  {
+    "test": "Error Handling - 404",
+    "passed": true,
+    "details": "Status: 404",
+    "timestamp": "2025-10-16T14:05:27.463420"
+  },
+  {
+    "test": "Error Handling - 400/422",
+    "passed": true,
+    "details": "Status: 422",
+    "timestamp": "2025-10-16T14:05:27.467431"
+  }
+]

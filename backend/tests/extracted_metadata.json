@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "iron_lion_full.wav",
+    "format": "WAV",
+    "channels": 2,
+    "sample_width": 2,
+    "framerate": 48000,
+    "n_frames": 11207039,
+    "duration_seconds": 233.47997916666668,
+    "file_size_mb": 42.751502990722656
+  },
+  {
+    "filename": "iron_lion_vocals.wav",
+    "format": "WAV",
+    "channels": 2,
+    "sample_width": 2,
+    "framerate": 48000,
+    "n_frames": 11207040,
+    "duration_seconds": 233.48,
+    "file_size_mb": 42.75153923034668
+  },
+  {
+    "filename": "leo_voice_sample.wav",
+    "format": "WAV",
+    "channels": 2,
+    "sample_width": 2,
+    "framerate": 48000,
+    "n_frames": 1567949,
+    "duration_seconds": 32.66560416666667,
+    "file_size_mb": 5.981327056884766
+  }
+]

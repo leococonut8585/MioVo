@@ -1,0 +1,86 @@
+[
+  {
+    "test": "WAV Validation - iron_lion_full.wav",
+    "passed": true,
+    "details": "Channels: 2, Sample Rate: 48000Hz, Duration: 233.48s, Size: 42.75MB",
+    "timestamp": "2025-10-16T14:06:18.813110"
+  },
+  {
+    "test": "WAV Validation - iron_lion_vocals.wav",
+    "passed": true,
+    "details": "Channels: 2, Sample Rate: 48000Hz, Duration: 233.48s, Size: 42.75MB",
+    "timestamp": "2025-10-16T14:06:18.813809"
+  },
+  {
+    "test": "WAV Validation - leo_voice_sample.wav",
+    "passed": true,
+    "details": "Channels: 2, Sample Rate: 48000Hz, Duration: 32.67s, Size: 5.98MB",
+    "timestamp": "2025-10-16T14:06:18.814366"
+  },
+  {
+    "test": "File Size Check - iron_lion_full.wav",
+    "passed": true,
+    "details": "Size: 42.75MB (Max: 100MB)",
+    "timestamp": "2025-10-16T14:06:18.815635"
+  },
+  {
+    "test": "File Size Check - iron_lion_vocals.wav",
+    "passed": true,
+    "details": "Size: 42.75MB (Max: 100MB)",
+    "timestamp": "2025-10-16T14:06:18.816179"
+  },
+  {
+    "test": "File Size Check - leo_voice_sample.wav",
+    "passed": true,
+    "details": "Size: 5.98MB (Max: 100MB)",
+    "timestamp": "2025-10-16T14:06:18.816447"
+  },
+  {
+    "test": "Metadata Extraction - iron_lion_full.wav",
+    "passed": true,
+    "details": "Extracted 8 fields",
+    "timestamp": "2025-10-16T14:06:18.818100"
+  },
+  {
+    "test": "Metadata Extraction - iron_lion_vocals.wav",
+    "passed": true,
+    "details": "Extracted 8 fields",
+    "timestamp": "2025-10-16T14:06:18.818633"
+  },
+  {
+    "test": "Metadata Extraction - leo_voice_sample.wav",
+    "passed": true,
+    "details": "Extracted 8 fields",
+    "timestamp": "2025-10-16T14:06:18.819679"
+  },
+  {
+    "test": "Format Support - .WAV",
+    "passed": true,
+    "details": "Found 3 .wav files",
+    "timestamp": "2025-10-16T14:06:18.821164"
+  },
+  {
+    "test": "Format Support - .MP3",
+    "passed": true,
+    "details": "Format support check: False",
+    "timestamp": "2025-10-16T14:06:18.822895"
+  },
+  {
+    "test": "Format Support - .M4A",
+    "passed": true,
+    "details": "Format support check: False",
+    "timestamp": "2025-10-16T14:06:18.823372"
+  },
+  {
+    "test": "Format Support - .MP4",
+    "passed": true,
+    "details": "Format support check: False",
+    "timestamp": "2025-10-16T14:06:18.824301"
+  },
+  {
+    "test": "Batch Processing",
+    "passed": true,
+    "details": "Processed 3/3 files in 0.00s",
+    "timestamp": "2025-10-16T14:06:18.826855"
+  }
+]
