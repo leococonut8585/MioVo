@@ -9,21 +9,21 @@ import uuid
 from datetime import datetime
 from loguru import logger
 
-from ..models import TTSRequest, TaskResponse, TaskType, TaskStatus
-from ...aivisspeech.client import AivisSpeechClient
+from models import TTSRequest, TaskResponse, TaskType, TaskStatus
+# Note: AivisSpeech service needs to be running separately
+# from aivisspeech.client import AivisSpeechClient
 
 router = APIRouter(prefix="/tts", tags=["tts"])
 
-# AivisSpeech client (singleton)
-aivis_client = None
+# AivisSpeech client (singleton) - Disabled for Replit environment
+# aivis_client = None
 
-
-async def get_aivis_client() -> AivisSpeechClient:
-    """Get or create AivisSpeech client"""
-    global aivis_client
-    if aivis_client is None:
-        aivis_client = AivisSpeechClient()
-    return aivis_client
+# async def get_aivis_client() -> AivisSpeechClient:
+#     """Get or create AivisSpeech client"""
+#     global aivis_client
+#     if aivis_client is None:
+#         aivis_client = AivisSpeechClient()
+#     return aivis_client
 
 
 @router.post("/synthesize", response_model=TaskResponse)
@@ -41,29 +41,16 @@ async def synthesize_speech(request: TTSRequest):
     now = datetime.utcnow()
     
     try:
-        client = await get_aivis_client()
-        
-        # Synthesize
-        wav_bytes = await client.tts(
-            text=request.text,
-            speaker_id=request.speaker_id,
-            speed_scale=request.speed_scale,
-            pitch_scale=request.pitch_scale,
-            intonation_scale=request.intonation_scale,
-            volume_scale=request.volume_scale
-        )
-        
-        # Encode to base64
-        audio_base64 = base64.b64encode(wav_bytes).decode('utf-8')
-        
-        logger.info(f"TTS synthesis completed: {task_id}")
+        # Note: AivisSpeech service is not available in Replit environment
+        # This endpoint requires the full local setup with AivisSpeech Engine
+        logger.warning(f"TTS service not available in cloud environment: {task_id}")
         
         return TaskResponse(
             task_id=task_id,
             type=TaskType.TTS,
-            status=TaskStatus.COMPLETED,
-            progress=100.0,
-            result={"audio_base64": audio_base64, "format": "wav"},
+            status=TaskStatus.FAILED,
+            progress=0.0,
+            error="TTS service (AivisSpeech) requires local setup. See README for installation instructions.",
             created_at=now,
             updated_at=datetime.utcnow()
         )

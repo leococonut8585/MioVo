@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 from loguru import logger
 
-from ..models import RVCRequest, TaskResponse, TaskType, TaskStatus
+from models import RVCRequest, TaskResponse, TaskType, TaskStatus
 
 router = APIRouter(prefix="/rvc", tags=["rvc"])
 

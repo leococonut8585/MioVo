@@ -12,7 +12,7 @@ import os
 from loguru import logger
 
 # Import routers
-from .routers import tts, rvc
+from routers import tts, rvc
 
 # Application lifespan
 @asynccontextmanager
