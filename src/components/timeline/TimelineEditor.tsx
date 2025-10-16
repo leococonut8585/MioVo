@@ -17,6 +17,7 @@ interface TimelineEditorProps {
   onLinePlay: (lineId: string) => void
   onAccentEdit?: (lineId: string) => void
   selectedLineId?: string
+  playingLineId?: string | null
 }
 
 export function TimelineEditor({
@@ -26,7 +27,8 @@ export function TimelineEditor({
   onLineGenerate,
   onLinePlay,
   onAccentEdit,
-  selectedLineId
+  selectedLineId,
+  playingLineId
 }: TimelineEditorProps) {
   const shouldReduceMotion = useReducedMotion()
   const [hoveredLineId, setHoveredLineId] = useState<string | null>(null)
@@ -124,6 +126,7 @@ export function TimelineEditor({
                 index={index}
                 isSelected={selectedLineId === line.id}
                 isHovered={hoveredLineId === line.id}
+                isPlaying={playingLineId === line.id}
                 onClick={() => handleLineClick(line.id)}
                 onUpdate={(text) => onLineUpdate(line.id, text)}
                 onGenerate={() => onLineGenerate(line.id)}

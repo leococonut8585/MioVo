@@ -11,6 +11,7 @@ interface TimelineLineProps {
   index: number
   isSelected: boolean
   isHovered: boolean
+  isPlaying?: boolean
   onClick: () => void
   onUpdate: (text: string) => void
   onGenerate: () => void
@@ -23,6 +24,7 @@ export function TimelineLine({
   index,
   isSelected,
   isHovered: _isHovered,
+  isPlaying,
   onClick,
   onGenerate,
   onPlay,
@@ -34,7 +36,9 @@ export function TimelineLine({
     <motion.div
       className={clsx(
         'group relative p-4 rounded-lg border transition-colors cursor-pointer',
-        isSelected
+        isPlaying
+          ? 'border-yellow-500 bg-yellow-900/30 animate-pulse'
+          : isSelected
           ? 'border-primary-500 bg-primary-900/20'
           : 'border-slate-700 bg-slate-800 hover:border-slate-600 hover:bg-slate-750'
       )}
@@ -43,9 +47,22 @@ export function TimelineLine({
       whileTap={shouldReduceMotion ? {} : { scale: 0.99 }}
       transition={{ duration: 0.15 }}
     >
-      {/* Line number */}
-      <div className="absolute top-2 left-2 text-xs text-slate-500 font-mono">
-        #{index + 1}
+      {/* Line number and playing indicator */}
+      <div className="absolute top-2 left-2 flex items-center gap-2">
+        <span className="text-xs text-slate-500 font-mono">
+          #{index + 1}
+        </span>
+        {isPlaying && (
+          <motion.span
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            className="flex items-center gap-1 px-2 py-0.5 bg-yellow-500 text-white text-xs rounded-full"
+          >
+            <span className="animate-pulse">▶</span>
+            <span>再生中</span>
+          </motion.span>
+        )}
       </div>
 
       {/* Text content */}

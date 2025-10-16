@@ -2,10 +2,12 @@
  * Reading Mode Component
  * Main UI for text-to-speech mode
  */
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import type { ReadingLine, EmotionStyle, AudioSettings } from '../../types/audio'
 import { TimelineEditor } from '../timeline/TimelineEditor'
+import { PlayAllControls } from './PlayAllControls'
+import { usePlayAll } from '../../hooks/usePlayAll'
 
 export function ReadingMode() {
   const shouldReduceMotion = useReducedMotion()
@@ -40,6 +42,40 @@ export function ReadingMode() {
   const [pauseInsertMode, setPauseInsertMode] = useState(false)
   const [selectedPauseType, setSelectedPauseType] = useState<'short' | 'long' | 'custom'>('short')
   const [customPauseDuration, setCustomPauseDuration] = useState(500)
+  
+  // Play All state
+  const [playingLineId, setPlayingLineId] = useState<string | null>(null)
+  
+  // Play All callbacks
+  const handleLineHighlight = useCallback((lineId: string | null) => {
+    setPlayingLineId(lineId)
+  }, [])
+  
+  const handleAutoScroll = useCallback((lineId: string) => {
+    const element = document.getElementById(`timeline-line-${lineId}`)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [])
+  
+  // Initialize usePlayAll hook
+  const {
+    isPlaying,
+    isPaused,
+    currentIndex,
+    playbackSpeed,
+    play,
+    pause,
+    stop,
+    skip,
+    setPlaybackSpeed
+  } = usePlayAll({
+    lines,
+    audioSettings,
+    selectedEmotion,
+    onLineHighlight: handleLineHighlight,
+    onAutoScroll: handleAutoScroll
+  })
 
   // Fetch available speakers on mount
   useEffect(() => {
@@ -446,11 +482,26 @@ export function ReadingMode() {
             </motion.button>
           </div>
         </motion.div>
+        
+        {/* Play All Controls */}
+        <PlayAllControls
+          isPlaying={isPlaying}
+          isPaused={isPaused}
+          currentIndex={currentIndex}
+          totalLines={lines.length}
+          playbackSpeed={playbackSpeed}
+          onPlay={play}
+          onPause={pause}
+          onStop={stop}
+          onSkip={skip}
+          onSpeedChange={setPlaybackSpeed}
+        />
 
         {/* Timeline */}
         <TimelineEditor
           lines={lines}
           selectedLineId={selectedLineId}
+          playingLineId={playingLineId}
           onLineSelect={setSelectedLineId}
           onLineUpdate={(lineId, text) => {
             setLines(prev => prev.map(line =>
