@@ -4,40 +4,47 @@ import electron from 'vite-plugin-electron'
 import renderer from 'vite-plugin-electron-renderer'
 import path from 'path'
 
+// Check if we're in Replit environment (cloud) or local development
+const isReplit = process.env.REPL_ID !== undefined
+const isElectronMode = process.env.ELECTRON_MODE === 'true'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    electron([
-      {
-        // Main process entry file
-        entry: 'electron/main.ts',
-        onstart(args) {
-          args.startup()
+    // Only use Electron plugins when not in Replit or explicitly enabled
+    ...(!isReplit || isElectronMode ? [
+      electron([
+        {
+          // Main process entry file
+          entry: 'electron/main.ts',
+          onstart(args) {
+            args.startup()
+          },
+          vite: {
+            build: {
+              outDir: 'dist/electron',
+              rollupOptions: {
+                external: ['electron']
+              }
+            }
+          }
         },
-        vite: {
-          build: {
-            outDir: 'dist/electron',
-            rollupOptions: {
-              external: ['electron']
+        {
+          // Preload script
+          entry: 'electron/preload.ts',
+          onstart(args) {
+            args.reload()
+          },
+          vite: {
+            build: {
+              outDir: 'dist/electron'
             }
           }
         }
-      },
-      {
-        // Preload script
-        entry: 'electron/preload.ts',
-        onstart(args) {
-          args.reload()
-        },
-        vite: {
-          build: {
-            outDir: 'dist/electron'
-          }
-        }
-      }
-    ]),
-    renderer()
+      ]),
+      renderer()
+    ] : [])
   ],
   
   // Path aliases
