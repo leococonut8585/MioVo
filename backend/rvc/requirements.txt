@@ -1,0 +1,17 @@
+# RVC Service Dependencies
+# Note: PyTorch is provided by NGC base image
+
+# RVC Core (will be installed via git in Dockerfile)
+# rvc-python from github.com/litagin02/rvc-python
+
+# Audio Processing
+numpy>=1.24.0
+scipy>=1.10.0
+librosa>=0.10.0
+soundfile>=0.12.0
+resampy>=0.4.0
+demucs>=4.0.0
+
+# Utilities
+loguru>=0.7.0
+pydantic>=2.0.0

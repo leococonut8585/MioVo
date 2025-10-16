@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # AivisSpeech Engine - TTS Service (ONNX Runtime + GPU)
+  aivisspeech:
+    image: ghcr.io/aivis-project/aivisspeech-engine:nvidia-latest
+    container_name: miovo-aivisspeech
+    ports:
+      - "10101:10101"
+    volumes:
+      - ../data/aivisspeech:/home/user/.local/share/AivisSpeech-Engine-Dev
+      - ../models/aivisspeech:/home/user/.local/share/AivisSpeech-Engine-Dev/Models
+    environment:
+      - VOICEVOX_PORT=10101
+      - USE_GPU=true
+      - PUID=0
+      - PGID=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10101/speakers"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # RVC Service - Voice Conversion (PyTorch with RTX 5090 support)
+  rvc:
+    build:
+      context: ..
+      dockerfile: docker/rvc.Dockerfile
+    image: miovo-rvc:latest
+    container_name: miovo-rvc
+    ports:
+      - "10102:10102"
+    volumes:
+      - ../backend/rvc:/app
+      - ../models/rvc:/models
+      - rvc-cache:/root/.cache
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - RVC_PORT=10102
+      - RVC_MODEL_DIR=/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10102/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # FastAPI Gateway (Optional - can run directly on host)
+  gateway:
+    build:
+      context: ..
+      dockerfile: docker/gateway.Dockerfile
+    image: miovo-gateway:latest
+    container_name: miovo-gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend/gateway:/app
+      - ../config:/config
+      - ../tmp:/tmp
+    environment:
+      - AIVISSPEECH_URL=http://host.docker.internal:10101
+      - RVC_URL=http://rvc:10102
+      - CONFIG_PATH=/config/default.yml
+    depends_on:
+      - rvc
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  rvc-cache:
+    driver: local
+
+networks:
+  default:
+    name: miovo-network
+    driver: bridge

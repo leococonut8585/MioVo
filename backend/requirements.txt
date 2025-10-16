@@ -1,0 +1,32 @@
+# FastAPI Gateway
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+python-multipart==0.0.20
+
+# HTTP Client
+httpx==0.28.1
+aiohttp==3.11.11
+
+# Audio Processing
+numpy==2.2.1
+scipy==1.15.1
+soundfile==0.12.1
+librosa==0.10.2
+pydub==0.25.1
+
+# Configuration
+pyyaml==6.0.2
+python-dotenv==1.0.1
+
+# Utilities
+loguru==0.7.3
+tenacity==9.0.0
+
+# Development
+pytest==8.3.4
+pytest-asyncio==0.25.2
+black==24.10.0
+flake8==7.1.1
+mypy==1.14.1
