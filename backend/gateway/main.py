@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import uvicorn
 import asyncio
+import os
 from loguru import logger
 
 # Import routers
@@ -37,9 +38,20 @@ app = FastAPI(
 )
 
 # CORS middleware
+allowed_origins = [
+    "http://localhost:5000",
+    "https://localhost:5000",
+]
+# Add Replit domains if available
+if replit_domain := os.getenv("REPL_SLUG"):
+    allowed_origins.extend([
+        f"https://{os.getenv('REPL_SLUG')}.{os.getenv('REPL_OWNER', '')}.repl.co",
+        f"https://{os.getenv('REPL_SLUG')}-{os.getenv('REPL_OWNER', '')}.replit.dev",
+    ])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite dev server
+    allow_origins=allowed_origins + ["*"],  # Allow all for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
