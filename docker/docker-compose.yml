@@ -64,6 +64,40 @@ services:
       retries: 3
       start_period: 60s
 
+  # RVC WebUI - Training Service (Gradio UI for model training)
+  rvc-webui:
+    build:
+      context: ..
+      dockerfile: docker/rvc-webui.Dockerfile
+    image: miovo-rvc-webui:latest
+    container_name: miovo-rvc-webui
+    shm_size: '8gb'
+    ports:
+      - "7865:7865"
+    volumes:
+      - ../data/leo-training:/workspace/RVC-WebUI/dataset/leo
+      - ../models/rvc-trained:/workspace/RVC-WebUI/weights
+      - ../models/rvc-trained:/workspace/RVC-WebUI/logs
+      - rvc-webui-cache:/root/.cache
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7865"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
   # FastAPI Gateway (Optional - can run directly on host)
   gateway:
     build:
@@ -92,6 +126,8 @@ services:
 
 volumes:
   rvc-cache:
+    driver: local
+  rvc-webui-cache:
     driver: local
 
 networks:
