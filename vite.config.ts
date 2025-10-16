@@ -54,8 +54,13 @@ export default defineConfig({
   
   // Server configuration
   server: {
-    port: 5173,
-    strictPort: true
+    host: '0.0.0.0',
+    port: 5000,
+    strictPort: true,
+    hmr: {
+      clientPort: 443,
+      protocol: 'wss'
+    }
   },
   
   // Build configuration
