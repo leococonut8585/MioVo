@@ -64,6 +64,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5000,
     strictPort: true,
+    allowedHosts: true, // Allow all hosts in Replit environment
     hmr: {
       clientPort: 443,
       protocol: 'wss'
