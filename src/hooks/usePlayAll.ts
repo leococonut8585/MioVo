@@ -85,55 +85,51 @@ export function usePlayAll({
     if (!selectedEmotion) return null
     
     try {
-      // Create audio query
-      const queryParams = new URLSearchParams({
+      // Use the new backend gateway API
+      const ttsRequest = {
         text: line.text,
-        speaker: selectedEmotion.speakerId.toString()
-      })
-      
-      const queryResponse = await fetch(
-        `http://localhost:10101/audio_query?${queryParams}`,
-        { 
-          method: 'POST',
-          signal 
-        }
-      )
-      
-      if (!queryResponse.ok) {
-        throw new Error(`Audio query failed: ${queryResponse.statusText}`)
+        speaker_id: selectedEmotion.speakerId,
+        speed_scale: audioSettings.speedScale * playbackSpeed,
+        pitch_scale: audioSettings.pitchScale,
+        intonation_scale: audioSettings.intonationScale,
+        volume_scale: audioSettings.volumeScale
       }
       
-      const audioQuery = await queryResponse.json()
-      
-      // Apply audio settings with speed adjustment
-      audioQuery.speedScale = audioSettings.speedScale * playbackSpeed
-      audioQuery.pitchScale = audioSettings.pitchScale
-      audioQuery.intonationScale = audioSettings.intonationScale
-      audioQuery.volumeScale = audioSettings.volumeScale
-      
-      // Synthesize speech
-      const synthesisParams = new URLSearchParams({
-        speaker: selectedEmotion.speakerId.toString()
+      const response = await fetch('/tts/synthesize', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(ttsRequest),
+        signal
       })
       
-      const synthesisResponse = await fetch(
-        `http://localhost:10101/synthesis?${synthesisParams}`,
-        {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json; charset=utf-8',
-            'accept': 'audio/wav'
-          },
-          body: JSON.stringify(audioQuery),
-          signal
-        }
-      )
-      
-      if (!synthesisResponse.ok) {
-        throw new Error(`Synthesis failed: ${synthesisResponse.statusText}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `Synthesis failed: ${response.statusText}`)
       }
       
-      return await synthesisResponse.blob()
+      const taskResponse = await response.json()
+      
+      // Check if the task completed successfully
+      if (taskResponse.status !== 'completed') {
+        throw new Error(taskResponse.error || 'TTS generation failed')
+      }
+      
+      // Decode base64 audio data
+      if (!taskResponse.result?.audio_base64) {
+        throw new Error('No audio data in response')
+      }
+      
+      // Convert base64 to blob
+      const audioData = atob(taskResponse.result.audio_base64)
+      const audioArray = new Uint8Array(audioData.length)
+      for (let i = 0; i < audioData.length; i++) {
+        audioArray[i] = audioData.charCodeAt(i)
+      }
+      const audioBlob = new Blob([audioArray], { type: 'audio/wav' })
+      
+      return audioBlob
       
     } catch (err) {
       if ((err as Error).name === 'AbortError') {

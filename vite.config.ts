@@ -68,6 +68,29 @@ export default defineConfig({
     hmr: {
       clientPort: 443,
       protocol: 'wss'
+    },
+    // Proxy API requests to backend
+    proxy: {
+      '/tts': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/rvc': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/health': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false
+      }
     }
   },
   

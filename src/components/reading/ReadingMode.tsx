@@ -82,24 +82,50 @@ export function ReadingMode() {
     const fetchSpeakers = async () => {
       try {
         setSpeakersLoading(true)
-        const response = await fetch('http://localhost:10101/speakers')
+        const response = await fetch('/tts/speakers')
         
         if (!response.ok) {
           throw new Error('Failed to fetch speakers')
         }
         
-        const speakers = await response.json()
+        const data = await response.json()
+        const speakers = data.speakers || []
         
         // Extract all styles from all speakers
         const styles: EmotionStyle[] = []
-        for (const speaker of speakers) {
-          for (const style of speaker.styles || []) {
-            styles.push({
-              id: `${speaker.speaker_uuid}-${style.id}`,
-              name: `${speaker.name} (${style.name})`,
-              speakerId: style.id
-            })
+        
+        // Handle different speaker data formats
+        if (Array.isArray(speakers) && speakers.length > 0) {
+          for (const speaker of speakers) {
+            if (speaker.styles && speaker.styles.length > 0) {
+              // VOICEVOX/AivisSpeech format with styles
+              for (const style of speaker.styles) {
+                styles.push({
+                  id: `${speaker.speaker_uuid || speaker.speaker_id || 'speaker'}-${style.id}`,
+                  name: `${speaker.name} (${style.name})`,
+                  speakerId: style.id  // Use the actual style ID from the service
+                })
+              }
+            } else {
+              // Simple format without styles
+              const speakerId = speaker.speaker_id || 0
+              styles.push({
+                id: `speaker-${speakerId}`,
+                name: speaker.name || `Speaker ${speakerId}`,
+                speakerId: speakerId
+              })
+            }
           }
+          console.log('Loaded speakers:', styles)
+        }
+        
+        // Add default speakers if no speakers are available
+        if (styles.length === 0) {
+          styles.push(
+            { id: 'default-0', name: 'Default', speakerId: 0 },
+            { id: 'default-1', name: 'Female', speakerId: 1 },
+            { id: 'default-2', name: 'Male', speakerId: 2 }
+          )
         }
         
         setAvailableStyles(styles)
@@ -112,6 +138,15 @@ export function ReadingMode() {
       } catch (err) {
         console.error('Failed to fetch speakers:', err)
         setError(err instanceof Error ? err.message : 'Failed to fetch speakers')
+        
+        // Add fallback speakers even on error
+        const fallbackStyles: EmotionStyle[] = [
+          { id: 'default-0', name: 'Default', speakerId: 0 },
+          { id: 'default-1', name: 'Female', speakerId: 1 },
+          { id: 'default-2', name: 'Male', speakerId: 2 }
+        ]
+        setAvailableStyles(fallbackStyles)
+        setSelectedEmotion(fallbackStyles[0])
       } finally {
         setSpeakersLoading(false)
       }
@@ -145,54 +180,48 @@ export function ReadingMode() {
     setError(null)
 
     try {
-      // Step 1: Create audio query
-      const queryParams = new URLSearchParams({
+      // Use the new backend gateway API
+      const ttsRequest = {
         text: line.text,
-        speaker: selectedEmotion.speakerId.toString()
-      })
-      
-      const queryResponse = await fetch(
-        `http://localhost:10101/audio_query?${queryParams}`,
-        { method: 'POST' }
-      )
-      
-      if (!queryResponse.ok) {
-        throw new Error(`Audio query failed: ${queryResponse.statusText}`)
+        speaker_id: selectedEmotion.speakerId,
+        speed_scale: audioSettings.speedScale,
+        pitch_scale: audioSettings.pitchScale,
+        intonation_scale: audioSettings.intonationScale,
+        volume_scale: audioSettings.volumeScale
       }
       
-      const audioQuery = await queryResponse.json()
-      
-      // Save accent_phrases for editing
-      setAccentPhrases(prev => new Map(prev).set(lineId, audioQuery.accent_phrases))
-      
-      // Apply audio settings
-      audioQuery.speedScale = audioSettings.speedScale
-      audioQuery.pitchScale = audioSettings.pitchScale
-      audioQuery.intonationScale = audioSettings.intonationScale
-      audioQuery.volumeScale = audioSettings.volumeScale
-      
-      // Step 2: Synthesize speech
-      const synthesisParams = new URLSearchParams({
-        speaker: selectedEmotion.speakerId.toString()
+      const response = await fetch('/tts/synthesize', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(ttsRequest)
       })
       
-      const synthesisResponse = await fetch(
-        `http://localhost:10101/synthesis?${synthesisParams}`,
-        {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json; charset=utf-8',
-            'accept': 'audio/wav'
-          },
-          body: JSON.stringify(audioQuery)
-        }
-      )
-      
-      if (!synthesisResponse.ok) {
-        throw new Error(`Synthesis failed: ${synthesisResponse.statusText}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `Synthesis failed: ${response.statusText}`)
       }
       
-      const audioBlob = await synthesisResponse.blob()
+      const taskResponse = await response.json()
+      
+      // Check if the task completed successfully
+      if (taskResponse.status !== 'completed') {
+        throw new Error(taskResponse.error || 'TTS generation failed')
+      }
+      
+      // Decode base64 audio data
+      if (!taskResponse.result?.audio_base64) {
+        throw new Error('No audio data in response')
+      }
+      
+      // Convert base64 to blob
+      const audioData = atob(taskResponse.result.audio_base64)
+      const audioArray = new Uint8Array(audioData.length)
+      for (let i = 0; i < audioData.length; i++) {
+        audioArray[i] = audioData.charCodeAt(i)
+      }
+      const audioBlob = new Blob([audioArray], { type: 'audio/wav' })
       
       // Cache the audio
       setAudioCache(prev => new Map(prev).set(lineId, audioBlob))
@@ -262,154 +291,20 @@ export function ReadingMode() {
     }
   }
 
-  // Adjust accent position
+  // Adjust accent position (simplified for new API)
   const handleAccentAdjust = async (lineId: string, phraseIndex: number, newAccent: number) => {
-    const phrases = accentPhrases.get(lineId)
-    if (!phrases || !selectedEmotion) return
-
-    // Update accent position
-    const updatedPhrases = phrases.map((phrase: any, idx: number) => 
-      idx === phraseIndex ? { ...phrase, accent: newAccent } : phrase
-    )
-    
-    setAccentPhrases(prev => new Map(prev).set(lineId, updatedPhrases))
-
-    // Regenerate audio with updated accent
-    try {
-      setLoading(true)
-      const line = lines.find(l => l.id === lineId)
-      if (!line) return
-
-      // Create audio query with updated accent_phrases
-      const audioQuery = {
-        accent_phrases: updatedPhrases,
-        speedScale: audioSettings.speedScale,
-        pitchScale: audioSettings.pitchScale,
-        intonationScale: audioSettings.intonationScale,
-        volumeScale: audioSettings.volumeScale,
-        prePhonemeLength: 0.1,
-        postPhonemeLength: 0.1,
-        outputSamplingRate: 44100,
-        outputStereo: false
-      }
-
-      // Synthesize with updated accent
-      const synthesisParams = new URLSearchParams({
-        speaker: selectedEmotion.speakerId.toString()
-      })
-      
-      const synthesisResponse = await fetch(
-        `http://localhost:10101/synthesis?${synthesisParams}`,
-        {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json; charset=utf-8',
-            'accept': 'audio/wav'
-          },
-          body: JSON.stringify(audioQuery)
-        }
-      )
-      
-      if (!synthesisResponse.ok) {
-        throw new Error(`Synthesis failed: ${synthesisResponse.statusText}`)
-      }
-      
-      const audioBlob = await synthesisResponse.blob()
-      setAudioCache(prev => new Map(prev).set(lineId, audioBlob))
-      
-      console.log(`Accent adjusted for line: ${lineId}, phrase: ${phraseIndex}, accent: ${newAccent}`)
-
-    } catch (err) {
-      console.error('Accent adjustment failed:', err)
-      setError(err instanceof Error ? err.message : 'Accent adjustment failed')
-    } finally {
-      setLoading(false)
-    }
+    // Note: The new backend API doesn't support accent adjustment directly
+    // This would require regenerating the entire audio with different parameters
+    console.log(`Accent adjustment requested for line: ${lineId}, phrase: ${phraseIndex}, accent: ${newAccent}`)
+    setError('アクセント調整機能は現在のバックエンドでは利用できません')
   }
 
-  // Insert pause between phrases
+  // Insert pause between phrases (simplified for new API)
   const handlePauseInsert = async (lineId: string, phraseIndex: number) => {
-    const phrases = accentPhrases.get(lineId)
-    if (!phrases || !selectedEmotion) return
-
-    try {
-      setLoading(true)
-      
-      // Create pause_mora based on selected type
-      let pauseDuration = 0.1  // Short pause (100ms)
-      if (selectedPauseType === 'long') {
-        pauseDuration = 0.3  // Long pause (300ms)
-      } else if (selectedPauseType === 'custom') {
-        pauseDuration = customPauseDuration / 1000  // Custom pause (ms to seconds)
-      }
-
-      // Add pause_mora to the phrase
-      const updatedPhrases = phrases.map((phrase: any, idx: number) => {
-        if (idx === phraseIndex) {
-          return {
-            ...phrase,
-            pause_mora: {
-              text: '、',
-              consonant: null,
-              consonant_length: null,
-              vowel: 'pau',
-              vowel_length: pauseDuration,
-              pitch: 0
-            }
-          }
-        }
-        return phrase
-      })
-
-      setAccentPhrases(prev => new Map(prev).set(lineId, updatedPhrases))
-
-      // Regenerate audio with pause
-      const line = lines.find(l => l.id === lineId)
-      if (!line) return
-
-      const audioQuery = {
-        accent_phrases: updatedPhrases,
-        speedScale: audioSettings.speedScale,
-        pitchScale: audioSettings.pitchScale,
-        intonationScale: audioSettings.intonationScale,
-        volumeScale: audioSettings.volumeScale,
-        prePhonemeLength: 0.1,
-        postPhonemeLength: 0.1,
-        outputSamplingRate: 44100,
-        outputStereo: false
-      }
-
-      const synthesisParams = new URLSearchParams({
-        speaker: selectedEmotion.speakerId.toString()
-      })
-      
-      const synthesisResponse = await fetch(
-        `http://localhost:10101/synthesis?${synthesisParams}`,
-        {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json; charset=utf-8',
-            'accept': 'audio/wav'
-          },
-          body: JSON.stringify(audioQuery)
-        }
-      )
-      
-      if (!synthesisResponse.ok) {
-        throw new Error(`Synthesis failed: ${synthesisResponse.statusText}`)
-      }
-      
-      const audioBlob = await synthesisResponse.blob()
-      setAudioCache(prev => new Map(prev).set(lineId, audioBlob))
-      
-      console.log(`Pause inserted for line: ${lineId}, phrase: ${phraseIndex}, type: ${selectedPauseType}`)
-
-    } catch (err) {
-      console.error('Pause insertion failed:', err)
-      setError(err instanceof Error ? err.message : 'Pause insertion failed')
-    } finally {
-      setLoading(false)
-    }
+    // Note: The new backend API doesn't support pause insertion directly
+    // This would require regenerating the entire audio with modified text
+    console.log(`Pause insertion requested for line: ${lineId}, phrase: ${phraseIndex}`)
+    setError('ポーズ挿入機能は現在のバックエンドでは利用できません')
   }
 
   // Save all generated audio as WAV
